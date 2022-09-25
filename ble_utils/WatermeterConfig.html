@@ -405,14 +405,8 @@ function doConnect() {
 					addClog("Add EventListener (0x1f1f)");
 					characteristic.addEventListener('characteristicvaluechanged', handlerCmdChanged);
 					sendCmdF6();
-//					addClog('Send cmd ' + Number(cmdGetId).toString(16));
-//					characteristic.writeValue(new Uint8Array([cmdGetId]))
-//					.then(_ => {addClog('Send cmd ok');})
-//					.catch(error => {
-//						addClog(error);
-//					});
 					let count = 0;
-					intervalId = setInterval(function() {
+					let intervalId = setInterval(function() {
 						if (count++ == 10 || watermeterFirmware) {
 							clearInterval(intervalId);
 						}
