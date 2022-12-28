@@ -21,6 +21,7 @@
 <div id="binfile" hidden="true">
 Select Firmware: <input type="file" accept=".bin" id="file"></div>
 <div id="frmwfile"></div><hr>
+<div id="aes_ccm"></div><hr>
 <div id="hotcount"></div>
 <div id="coldcount"></div>
 <div id="liters"></div>
@@ -41,14 +42,17 @@ Select Firmware: <input type="file" accept=".bin" id="file"></div>
 
 <script>
 
-//last version on github.com
-var version = 0x18; 
-var versionStr = 'V'+ (version >> 4) + '.' + (version & 0x0f);
+var version = 0x00; 
+var versionStr = '';
+var version_begin = 0x18;
+var version_end   = 0x23;
 
 var url = "https://raw.githubusercontent.com/slacky1965/watermeter_ble/main/";
-var fimwareFile = 'watermeter_ble_' + versionStr + '.bin';
+var firmwareFile = '';
 
 var fwname = '';
+
+var bindkey = "00112233445566778899AABBCCDDEEFF";
 
 var serviceOta = "00010203-0405-0607-0809-0a0b0c0d1912";
 var charOta = "00010203-0405-0607-0809-0a0b0c0d2b12";
@@ -64,6 +68,7 @@ var otaEnabled = false;
 var cmdEnabled = false;
 var countsEnabled = false;
 var infoEnabled = false;
+var encryptEnabled = false; 
 
 var cmdSendHotCount = 0xF1;
 var cmdSendColdCount = 0xF2;
@@ -72,6 +77,8 @@ var cmdResetWhitelist = 0xF4;
 var cmdResetMCU = 0xF5;
 var cmdGetId = 0xF6;
 var cmdGetLog = 0xF7;
+var cmdBindKey = 0xF8;
+var cmdResetBindKey = 0xF9;
 
 var settingsCharacteristics = null;
 
@@ -106,11 +113,16 @@ function resetVariables() {
 	$("binfile").hidden = true;
 	$("file").value = '';
 	$("frmwfile").innerHTML = '';
+	$("aes_ccm").innerHTML = '';
 	$("hotcount").innerHTML = '';
 	$("coldcount").innerHTML = '';
 	$("liters").innerHTML = '';
 	$("buttonlogmcu").disabled=true;
 	fwname = '';
+	ecryptEnabled = false;
+	version = 0x00; 
+	versionStr = '';
+	firmwareFile = '';
 }
 
 function handleError(error) {
@@ -142,7 +154,81 @@ function sendWater(cmd, data){
 	sendCustomSetting(Number(cmd).toString(16) + hex);
 }
 
+function toHexString(byteArray) {
+	return Array.prototype.map.call(byteArray, function(byte) {
+		return ('0' + (byte & 0xFF).toString(16)).slice(-2);
+	}).join('');
+}
+	
+function parseHexString(str) {
+    var result = [];
+    while (str.length >= 2) {
+        result.push(parseInt(str.substring(0, 2), 16));
+        str = str.substring(2, str.length);
+    }
+
+    return result;
+}
+
+function sendBindKey(cmd, data){
+	if (data.length != 32) {
+		alert('The length of the bindkey must be 32 characters!');
+		return;	
+	}
+	var hex = toHexString(parseHexString(data));
+	sendCustomSetting(Number(cmd).toString(16) + hex);
+	
+	encryptEnabled = true;
+	$("crypt_en_dis").innerHTML = "Encryption is enabled";
+}
+
+function sendResetBK() {
+	
+	if (!encryptEnabled) return;
+	encryptEnabled = false;
+	
+	sendCustomSetting(Number(cmdResetBindKey).toString(16));	
+
+	$("crypt_en_dis").innerHTML = "Encryption is disabled";
+	$("setaesccm").value = '';
+}
+
+async function isUrlFound(url) {
+	try {
+		const response = await fetch(url, {
+	    	method: 'HEAD',
+	      	cache: 'no-cache'
+		});
+		
+		return response.status === 200;
+		
+		} catch(error) {
+	    	//console.log(error);
+	    	return false;
+		}
+}
  
+async function getVersion() {
+
+	let versionS = '';
+	let frmwFile = '';
+	
+	for (let i = version_begin; i <= version_end; i++) {
+		if ((i & 0x0a) == 0x0a) {
+			i = (((i >> 4)+1) << 4) & 0xf0;
+		}
+		versionS = 'V'+ (i >> 4) + '.' + (i & 0x0f);
+		frmwFile = 'watermeter_ble_' + versionS + '.bin'; 
+		
+		const isValidUrl = await isUrlFound(url+frmwFile);
+		
+		if (isValidUrl) {
+			version = i;
+			firmwareFile = frmwFile;
+			versionStr = versionS;
+		}
+	}
+}
 
 function getDevInfo() {
 	gattServer.getPrimaryService(serviceInfo).then(service => {
@@ -217,14 +303,52 @@ function handlerCmdChanged(event) {
 	if (!watermeterFirmware) {
 		let id = event.target.value.getUint16(0, true);
 		if (id == watermeterId) {
+			let key = new Uint8Array(16);
+			let sum = 0;
+			for(let i = 0; i < 16; i++) {
+				key[i] = event.target.value.getUint8(i+4);
+				sum += key[i];
+			}
+			
+			if (sum != 0) {
+				encryptEnabled = true;
+			}
+			
+			let bKey = toHexString(key); 
 			let lpp = event.target.value.getUint8(2);
 			watermeterSoftwareVersion = event.target.value.getUint8(3);
 			watermeterFirmware = true;			
 			addAlog('Watermeter Firmware found in module');
             addLog('Software version: V' + (watermeterSoftwareVersion >> 4) + '.' + (watermeterSoftwareVersion & 0x0f));
+        	let s = '<div id="crypt_en_dis"></div>';
+        	s += '<input id="setaesccm" type="text" size="40" maxlength="32" pattern="^[A-Fa-f0-9]+$" placeholder="'+bindkey+'">'; 
+        	s += '<button id="baesccm" type="button" onclick="sendBindKey(cmdBindKey, setaesccm.value);">Set BindKey</button>';
+			s += '<button type="button" onclick="sendResetBK();">Reset BindKey</button><br>';
+        	$("aes_ccm").innerHTML = s;
+
+        	if (encryptEnabled) {
+        		$("crypt_en_dis").innerHTML = "Encryption is enabled";
+        	} else {
+        		$("crypt_en_dis").innerHTML = "Encryption is disabled";
+        	}
+
+        	if (sum != 0) {
+				$("setaesccm").value = bKey;
+        	}
+        	
+        	let prevVal = "";
+        	$("setaesccm").addEventListener('input', function(e){
+        	  if(this.checkValidity()){
+        	    prevVal = this.value;
+        	  } else {
+        	    this.value = prevVal;
+        	  }
+        	});
+
+
 			if(countsEnabled)  {
 				getDevCounts();
-				let s = '<input type="number" id="setliters" value="' + lpp + '">';
+				s = '<input type="number" id="setliters" value="' + lpp + '">';
 				s += '<button type="button" onclick="sendWater(cmdSendLiters, setliters.value);">';
 				s += 'Set Liters per pulse</button><br>';
 				$("liters").innerHTML = s;
@@ -363,6 +487,8 @@ function connect() {
             .map((x) => ({ namePrefix: x }));
     }
 
+    getVersion();
+    
     if (bluetoothDevice != null) bluetoothDevice.gatt.disconnect();
     resetVariables();
     addSlog("Searching for devices");
@@ -603,7 +729,7 @@ function download_file(filename, fn) {
 }
 
 function FirmwareUpgrade() {
-	let fn = fimwareFile;
+	let fn = firmwareFile;
 	addAlog("Load firmware file '"+fn+"'...");
 	download_file(fn, getFirmwareArray);
 	$("file").value = '';
@@ -612,7 +738,7 @@ function FirmwareUpgrade() {
 function menuUpgrade() {
 	let is = "";
 	$("binfile").hidden = false;
-	if (watermeterSoftwareVersion != 0) {
+	if (watermeterSoftwareVersion != 0 && version != 0) {
 		addClog('Module software version: 0x' + Number(watermeterSoftwareVersion).toString(16));
 		addClog('HitGub software version: 0x' + Number(version).toString(16));
 		is = '<button type="button" id="frmwupg" onclick="FirmwareUpgrade();">Watermeter Firmware ver ' + versionStr + '</button>';
@@ -621,8 +747,10 @@ function menuUpgrade() {
 		is += '<button type="button" onclick="startDFU();">Start Flashing</button> file: \''+fwname+'\'';
 	}
 	$("frmwfile").innerHTML = is;
-	if (version <= watermeterSoftwareVersion) {
-		$("frmwupg").disabled = true;
+	if ($("frmwupg") !== null) {
+		if (version <= watermeterSoftwareVersion) {
+			$("frmwupg").disabled = true;
+		}
 	}
 }
 
@@ -782,6 +910,7 @@ var mainCharSend = function(data, characteristic) {
 
 clearLog();
 clearLogMcu();
+
 </script>
 </body></html>
 
