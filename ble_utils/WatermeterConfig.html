@@ -300,6 +300,7 @@ function handleColdCounterChanged(event) {
 }
 
 function handlerCmdChanged(event) {
+	let s = '';
 	if (!watermeterFirmware) {
 		let id = event.target.value.getUint16(0, true);
 		if (id == watermeterId) {
@@ -320,32 +321,34 @@ function handlerCmdChanged(event) {
 			watermeterFirmware = true;			
 			addAlog('Watermeter Firmware found in module');
             addLog('Software version: V' + (watermeterSoftwareVersion >> 4) + '.' + (watermeterSoftwareVersion & 0x0f));
-        	let s = '<div id="crypt_en_dis"></div>';
-        	s += '<input id="setaesccm" type="text" size="40" maxlength="32" pattern="^[A-Fa-f0-9]+$" placeholder="'+bindkey+'">'; 
-        	s += '<button id="baesccm" type="button" onclick="sendBindKey(cmdBindKey, setaesccm.value);">Set BindKey</button>';
-			s += '<button type="button" onclick="sendResetBK();">Reset BindKey</button><br>';
-        	$("aes_ccm").innerHTML = s;
+            if (watermeterSoftwareVersion > 0x18) {
+            	s = '<div id="crypt_en_dis"></div>';
+            	s += '<input id="setaesccm" type="text" size="40" maxlength="32" pattern="^[A-Fa-f0-9]+$" placeholder="'+bindkey+'">'; 
+            	s += '<button id="baesccm" type="button" onclick="sendBindKey(cmdBindKey, setaesccm.value);">Set BindKey</button>';
+    			s += '<button type="button" onclick="sendResetBK();">Reset BindKey</button><br>';
+            	$("aes_ccm").innerHTML = s;
 
-        	if (encryptEnabled) {
-        		$("crypt_en_dis").innerHTML = "Encryption is enabled";
-        	} else {
-        		$("crypt_en_dis").innerHTML = "Encryption is disabled";
-        	}
+            	if (encryptEnabled) {
+            		$("crypt_en_dis").innerHTML = "Encryption is enabled";
+            	} else {
+            		$("crypt_en_dis").innerHTML = "Encryption is disabled";
+            	}
 
-        	if (sum != 0) {
-				$("setaesccm").value = bKey;
-        	}
-        	
-        	let prevVal = "";
-        	$("setaesccm").addEventListener('input', function(e){
-        	  if(this.checkValidity()){
-        	    prevVal = this.value;
-        	  } else {
-        	    this.value = prevVal;
-        	  }
-        	});
-
-
+            	if (sum != 0) {
+    				$("setaesccm").value = bKey;
+            	}
+            	
+            	let prevVal = "";
+            	$("setaesccm").addEventListener('input', function(e){
+            	  if(this.checkValidity()){
+            	    prevVal = this.value;
+            	  } else {
+            	    this.value = prevVal;
+            	  }
+            	});
+            	
+            }
+            
 			if(countsEnabled)  {
 				getDevCounts();
 				s = '<input type="number" id="setliters" value="' + lpp + '">';
