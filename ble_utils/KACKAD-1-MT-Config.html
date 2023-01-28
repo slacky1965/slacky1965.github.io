@@ -154,6 +154,14 @@ function sendCommand(cmd, data){
 	sendCustomSetting(Number(cmd).toString(16) + hex);
 }
 
+function sendCmdPeriod(data) {
+	if (data > 0 && data < 256) {
+		sendCommand(cmdMeasurPeriod, data);
+	} else {
+		addClog('Period must be 1...255');
+	}
+}
+
 function toHexString(byteArray) {
 	return Array.prototype.map.call(byteArray, function(byte) {
 		return ('0' + (byte & 0xFF).toString(16)).slice(-2);
@@ -353,8 +361,8 @@ function handlerCmdChanged(event) {
 					</table>';
 				$("table").innerHTML = s;
 				s = '<div>Measurement period in minutes</div>';
-				s += '<input type="number" id="setmsperiod" value="' + measur_period + '">';
-				s += '<button type="button" onclick="sendCommand(cmdMeasurPeriod, setmsperiod.value);">';
+				s += '<input type="number" id="setmsperiod" min="1" max="255" value="' + measur_period + '">';
+				s += '<button type="button" onclick="sendCmdPeriod(setmsperiod.value);">';
 				s += 'Set Measurement Period</button>';
 				s += '<button type="button" onclick="sendCustomSetting(Number(cmdClearCfg).toString(16));">';
 				s += 'Clear Config</button><br>';
