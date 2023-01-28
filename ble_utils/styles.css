@@ -140,3 +140,27 @@ select {
   padding: 4px;
 }
 
+table {
+	font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+	font-size: 14px;
+	border-collapse: collapse;
+	text-align: center;
+	width: 100%;
+}
+
+th {
+	background: #1a73e8; /*#AFCDE7;*/
+	color: white;
+	padding: 10px 20px;
+}
+
+th, td {
+	border-style: solid;
+	border-width: 0 1px 1px 0;
+	border-color: white;
+}
+
+td {
+	background: #f0f0f0;/*#D8E6F3;*/
+}
+
