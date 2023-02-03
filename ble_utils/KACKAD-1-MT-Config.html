@@ -61,6 +61,10 @@ var bindkeyId = 0xFEDB;
 var fake_bindkey = "00112233445566778899AABBCCDDEEFF";
 var bindkey = "0";
 
+var serialNumberId = 0xFEDC;
+var dateReleaseId  = 0xFEDD;
+
+
 var serviceOta 	  = "00010203-0405-0607-0809-0a0b0c0d1912";
 var charOta 	  = "00010203-0405-0607-0809-0a0b0c0d2b12";
 var serviceCmd 	  = "00001f10-0000-1000-8000-00805f9b34fb";
@@ -356,8 +360,11 @@ function handlerCmdChanged(event) {
 			if(emeterEnabled)  {
 				getDevEMeter();
 				s = '<table> \
-					<tr><th>Tariff 1</th><th>Tarrif 2</th><th>Tariff 3</th><th>Power</th><th>Voltage</th></tr> \
-					<tr><td id="tariff1"></td><td id="tariff2"></td><td id="tariff3"></td><td id="power"></td><td id="voltage"></td></tr> \
+					<tr><th>Serial Number</th><th>Date of release</th> \
+					<th>Tariff 1</th><th>Tarrif 2</th><th>Tariff 3</th><th>Power</th><th>Voltage</th></tr> \
+					<tr><td id="serial_number"></td><td id="date_release"></td> \
+					<td id="tariff1"></td><td id="tariff2"></td><td id="tariff3"> \
+					</td><td id="power"></td><td id="voltage"></td></tr> \
 					</table>';
 				$("table").innerHTML = s;
 				s = '<div>Measurement period in minutes</div>';
@@ -415,6 +422,13 @@ function handlerCmdChanged(event) {
 				let device_address = event.target.value.getUint16(6, true);
 				$("setmsperiod").value = measur_period;
 				$("setaddr").value = device_address; 
+			} else if (id == serialNumberId) {
+				let sn = new TextDecoder("utf-8").decode(event.target.value.buffer.slice(2));
+				$("serial_number").innerHTML = sn;
+			} else if (id == dateReleaseId) {
+				let dr = new TextDecoder("utf-8").decode(event.target.value.buffer.slice(2));
+				$("date_release").innerHTML = dr;
+				
 			}
 		}
 	}
