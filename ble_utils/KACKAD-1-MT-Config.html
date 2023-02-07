@@ -294,31 +294,31 @@ function getDevInfo() {
 function handleTariff1Changed(event) {
 	let value = event.target.value.getUint32(0, true);
 	$("tariff1").value = value;
-	$("tariff1").innerHTML = value/100 + ' kWh';
+	$("tariff1").innerHTML = value;
 }
 	
 function handleTariff2Changed(event) {
 	let value = event.target.value.getUint32(0, true);
 	$("tariff2").value = value
-	$("tariff2").innerHTML = value/100 + ' kWh';
+	$("tariff2").innerHTML = value;
 }
 	
 function handleTariff3Changed(event) {
 	let value = event.target.value.getUint32(0, true);
 	$("tariff3").value = value;
-	$("tariff3").innerHTML = value/100 + ' kWh';
+	$("tariff3").innerHTML = value;
 }
 	
 function handlePowerChanged(event) {
 	let value = event.target.value.getUint32(0, true);
 	$("power").value = value;
-	$("power").innerHTML = value/100 + ' W';
+	$("power").innerHTML = value;
 }
 	
 function handleVoltageChanged(event) {
 	let value = event.target.value.getUint16(0, true);
 	$("voltage").value = value;
-	$("voltage").innerHTML = value/100 + ' V';
+	$("voltage").innerHTML = value;
 }
 	
 function handlerCmdChanged(event) {
@@ -326,12 +326,11 @@ function handlerCmdChanged(event) {
 	if (!emeterFirmware) {
 		let id = event.target.value.getUint16(0, true);
 		if (id == emeterId) {
-			encryptEnabled = event.target.value.getUint8(5)
-			
 			let measur_period = event.target.value.getUint16(2, true);
-			let device_address = event.target.value.getUint16(6, true);;
-			
 			emeterSoftwareVersion = event.target.value.getUint8(4);
+			encryptEnabled = event.target.value.getUint8(5)
+			let device_address = event.target.value.getUint16(6, true);
+			
 			emeterFirmware = true;			
 			addAlog('Electricity meter Firmware found in module');
             addLog('Software version: V' + (emeterSoftwareVersion >> 4) + '.' + (emeterSoftwareVersion & 0x0f));
@@ -458,7 +457,7 @@ function getDevEMeter() {
 	          queue = queue.then(_ => characteristic.readValue()).then(value => {
 	        	value = value.getUint32(0, true);
 	            addClog('Tariff_1: ' + value);
-				$("tariff1").innerHTML = value/100 + ' kWh';
+				$("tariff1").innerHTML = value;
 	          });
 	          break;
 
@@ -474,7 +473,7 @@ function getDevEMeter() {
 		          queue = queue.then(_ => characteristic.readValue()).then(value => {
 		        	value = value.getUint32(0, true);
 		            addClog('Tariff_2: ' + value);
-					$("tariff2").innerHTML = value/100 + ' kWh';
+					$("tariff2").innerHTML = value;
 		          });
 		          break;
 
@@ -490,7 +489,7 @@ function getDevEMeter() {
 		          queue = queue.then(_ => characteristic.readValue()).then(value => {
 		        	value = value.getUint32(0, true);
 		            addClog('Tariff_3: ' + value);
-					$("tariff3").innerHTML = value/100 + ' kWh';
+					$("tariff3").innerHTML = value;
 		          });
 		          break;
 
@@ -506,7 +505,7 @@ function getDevEMeter() {
 		          queue = queue.then(_ => characteristic.readValue()).then(value => {
 		        	value = value.getUint32(0, true);
 		            addClog('Power: ' + value);
-					$("power").innerHTML = value/100 + ' W';
+					$("power").innerHTML = value;
 		          });
 		          break;
 
@@ -522,7 +521,7 @@ function getDevEMeter() {
 		          queue = queue.then(_ => characteristic.readValue()).then(value => {
 		        	value = value.getUint16(0, true);
 		            addClog('Voltage: ' + value);
-					$("voltage").innerHTML = value/100 + ' V';
+					$("voltage").innerHTML = value;
 		          });
 		          break;
 
