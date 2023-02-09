@@ -166,6 +166,13 @@ function sendCmdPeriod(data) {
 	}
 }
 
+function sendCmdClearCfg() {
+	encryptEnabled = false;
+	$("crypt_en_dis").innerHTML = "Encryption is disabled";
+	$("setaesccm").value = '';
+	sendCustomSetting(Number(cmdClearCfg).toString(16));
+}
+
 function toHexString(byteArray) {
 	return Array.prototype.map.call(byteArray, function(byte) {
 		return ('0' + (byte & 0xFF).toString(16)).slice(-2);
@@ -370,7 +377,8 @@ function handlerCmdChanged(event) {
 				s += '<input type="number" id="setmsperiod" min="1" max="255" value="' + measur_period + '">';
 				s += '<button type="button" onclick="sendCmdPeriod(setmsperiod.value);">';
 				s += 'Set Measurement Period</button>';
-				s += '<button type="button" onclick="sendCustomSetting(Number(cmdClearCfg).toString(16));">';
+//				s += '<button type="button" onclick="sendCustomSetting(Number(cmdClearCfg).toString(16));">';
+				s += '<button type="button" onclick="sendCmdClearCfg();">';
 				s += 'Clear Config</button><br>';
 				s += '<div>Device Address</div>';
 				s += '<input type="number" id="setaddr" value="' + device_address + '">';
