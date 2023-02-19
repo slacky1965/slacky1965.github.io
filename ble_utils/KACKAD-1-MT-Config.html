@@ -837,7 +837,7 @@ function menuUpgrade() {
 	if (emeterSoftwareVersion != 0 && version != 0) {
 		addClog('Module software version: 0x' + Number(emeterSoftwareVersion).toString(16));
 		addClog('HitGub software version: 0x' + Number(version).toString(16));
-		is = '<button type="button" id="frmwupg" onclick="FirmwareUpgrade();">Watermeter Firmware ver ' + versionStr + '</button>';
+		is = '<button type="button" id="frmwupg" onclick="FirmwareUpgrade();">Electricity meter Firmware ver ' + versionStr + '</button>';
 	}
 	if(fwname != "" && firmwareArray != "") {
 		is += '<button type="button" onclick="startDFU();">Start Flashing</button> file: \''+fwname+'\'';
