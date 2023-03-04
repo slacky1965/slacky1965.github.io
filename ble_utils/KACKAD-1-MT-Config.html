@@ -352,7 +352,7 @@ function handlerCmdChanged(event) {
 			let measur_period = event.target.value.getUint16(2, true);
 			emeterSoftwareVersion = event.target.value.getUint8(4);
 			encryptEnabled = event.target.value.getUint8(5)
-			let device_address = event.target.value.getUint16(6, true);
+			let device_address = event.target.value.getUint32(6, true);
 			
 			emeterFirmware = true;			
 			addAlog('Electricity meter Firmware found in module');
@@ -442,7 +442,7 @@ function handlerCmdChanged(event) {
 				$("setaesccm").value = bindkey;
 			} else if (id == emeterId) {
 				let measur_period = event.target.value.getUint16(2, true);
-				let device_address = event.target.value.getUint16(6, true);
+				let device_address = event.target.value.getUint32(6, true);
 				$("setmsperiod").value = measur_period;
 				$("setaddr").value = device_address; 
 			} else if (id == serialNumberId) {
