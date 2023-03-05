@@ -96,6 +96,7 @@ var charTariff3   = "00002b89-0000-1000-8000-00805f9b34fb";
 var charTariff4   = "00002ba8-0000-1000-8000-00805f9b34fb";
 var charPower 	  = "00002b05-0000-1000-8000-00805f9b34fb";
 var charVoltage   = "00002b18-0000-1000-8000-00805f9b34fb";
+var charAmpere    = "00002aee-0000-1000-8000-00805f9b34fb";
 var serviceInfo   = "0000180a-0000-1000-8000-00805f9b34fb";
 
 var bluetoothDevice, gattServer, Theservice, writeCharacteristic;
@@ -363,6 +364,12 @@ function handleVoltageChanged(event) {
 	$("voltage").innerHTML = value;
 }
 	
+function handleAmpereChanged(event) {
+	let value = event.target.value.getUint32(0, true);
+	$("ampere").value = value;
+	$("ampere").innerHTML = value;
+}
+	
 function handlerCmdChanged(event) {
 	let s = '';
 	if (!emeterFirmware) {
@@ -418,10 +425,10 @@ function handlerCmdChanged(event) {
 				getDevEMeter();
 				s = '<table> \
 					<tr><th>Serial Number</th><th>Date of release</th> \
-					<th>Tariff 1</th><th>Tarrif 2</th><th>Tariff 3</th><th>Power</th><th>Voltage</th></tr> \
+					<th>Tariff 1</th><th>Tarrif 2</th><th>Tariff 3</th><th>Power</th><th>Voltage</th><th>Ampere</th></tr> \
 					<tr><td id="serial_number"></td><td id="date_release"></td> \
 					<td id="tariff1"></td><td id="tariff2"></td><td id="tariff3"> \
-					</td><td id="power"></td><td id="voltage"></td></tr> \
+					</td><td id="power"></td><td id="voltage"></td><td id="ampere"></td></tr> \
 					</table>';
 				$("table").innerHTML = s;
 				s = '<div>Measurement period in minutes</div>';
@@ -581,6 +588,22 @@ function getDevEMeter() {
 		        	value = value.getUint16(0, true);
 		            addClog('Voltage: ' + value);
 					$("voltage").innerHTML = value;
+		          });
+		          break;
+
+	        case BluetoothUUID.getCharacteristic(charAmpere):
+		        characteristic.addEventListener('characteristicvaluechanged', handleAmpereChanged);
+		        characteristic.startNotifications()
+		          .then(_ => {
+		            addClog('Ampere notifications started');
+		          })
+		          .catch(error => {
+		            addClog(error);
+		          });
+		          queue = queue.then(_ => characteristic.readValue()).then(value => {
+		        	value = value.getUint32(0, true);
+		            addClog('Ampere: ' + value);
+					$("ampere").innerHTML = value;
 		          });
 		          break;
 
