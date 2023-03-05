@@ -36,7 +36,7 @@
 	<a><input id="kaskad1mt" name="emeter" type="radio" value="1">KACKAD-1-MT</a>
 	<a><input id="kaskad11" name="emeter" type="radio" value="2">KACKAD-11</a>
 	<a><input id="mercury206" name="emeter" type="radio" value="3">MERCURY 206</a>
-	<a><button type="button" onclick="set_device_type()">Set Device Type</button></a>
+	<a><button id="emeter_button" type="button" onclick="set_device_type()">Set Device Type</button></a>
 </div><hr>
 <div id="table"></div><hr>
 <div id="binfile" hidden="true">
@@ -395,6 +395,7 @@ function handlerCmdChanged(event) {
 			
 			$("kaskad11").disabled = true;
 			$("mercury206").disabled = true;
+			$("emeter_button").disabled = true;
 			
 			emeterFirmware = true;			
 			addAlog('Electricity meter Firmware found in module');
