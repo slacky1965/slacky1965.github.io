@@ -365,7 +365,7 @@ function handleVoltageChanged(event) {
 }
 	
 function handleAmpereChanged(event) {
-	let value = event.target.value.getUint32(0, true);
+	let value = event.target.value.getUint16(0, true);
 	$("ampere").value = value;
 	$("ampere").innerHTML = value;
 }
@@ -602,7 +602,7 @@ function getDevEMeter() {
 		            addClog(error);
 		          });
 		          queue = queue.then(_ => characteristic.readValue()).then(value => {
-		        	value = value.getUint32(0, true);
+		        	value = value.getUint16(0, true);
 		            addClog('Ampere: ' + value);
 					$("ampere").innerHTML = value;
 		          });
