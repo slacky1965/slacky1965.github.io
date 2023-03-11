@@ -37,8 +37,9 @@
 	<a><input id="kaskad11" name="emeter" type="radio" value="2">KACKAD-11</a>
 	<a><input id="mercury206" name="emeter" type="radio" value="3">MERCURY 206</a>
 	<a><button id="emeter_button" type="button" onclick="set_device_type()">Set Device Type</button></a>
-</div><hr>
-<div id="table"></div><hr>
+</div>
+<div id="table"></div>
+<div id="divisor"></div><hr>
 <div id="binfile" hidden="true">
 Select Firmware: <input type="file" accept=".bin" id="file"></div>
 <div id="frmwfile"></div><hr>
@@ -115,6 +116,7 @@ var cmdResetBindKey = 0xF6;
 var cmdAddress = 0xF7;
 var cmdClearCfg = 0xF8;
 var cmdSetDeviceType = 0xF9;
+var cmdSetDivisor = 0xFA;
 
 var settingsCharacteristics = null;
 
@@ -144,6 +146,7 @@ function resetVariables() {
 	$("aes_ccm").innerHTML = '';
 	$("settings").innerHTML = '';
 	$("table").innerHTML = '';
+	$("divisor").innerHTML = '';
 	fwname = '';
 	ecryptEnabled = false;
 	version = 0x00; 
@@ -246,6 +249,69 @@ function sendResetBK() {
 
 	$("crypt_en_dis").innerHTML = "Encryption is disabled";
 	$("setaesccm").value = '';
+}
+
+function get_divisor_from(div) {
+	let divisor = 0;
+	
+	if (div & 0x04) {
+		div &= 0x03;
+		if (div == 0x03) {
+			return 1000;
+		} else if (div == 0x02) {
+			return 100;
+		} else if (div == 0x01) {
+			return 10;
+		} else {
+			return 1;
+		}
+	} else {
+		div &= 0x03;
+		if (div == 0x03) {
+			return 0.001;
+		} else if (div == 0x02) {
+			return 0.01;
+		} else if (div == 0x01) {
+			return 0.1;
+		} else {
+			return 1;
+		}
+	}
+	
+	return 1;
+}
+
+function get_divisor_to(div) {
+	let divisor = 0;
+	
+	if (div == 0.001 || div == "0,001") {
+		divisor = 0x03;
+	} else if (div == 0.01 || div == "0,01") {
+		divisor = 0x02;
+	} else if (div == 0.1 || div == "0,1") {
+		divisor = 0x01;
+	} else if (div == 10) {
+		divisor = 0x05;
+	} else if (div == 100) {
+		divisor = 0x06; 
+	} else if (div == 1000) {
+		divisor = 0x07;
+	} else {
+		divisor = 0;
+	}
+	
+	return divisor;
+}
+
+function sendCmdDivisor(power, volts, amps, tariffs) {
+	let divisor = 0;
+	
+	divisor = (get_divisor_to(power)) & 0x07;
+	divisor |= (get_divisor_to(volts) << 3) & 0x38;
+	divisor |= (get_divisor_to(amps) << 6) & 0x01c0;
+	divisor |= (get_divisor_to(tariffs) << 9) & 0x0e00;
+	
+	sendCommand(cmdSetDivisor, divisor);
 }
 
 async function isUrlFound(url) {
@@ -380,6 +446,7 @@ function handlerCmdChanged(event) {
 			encryptEnabled = event.target.value.getUint8(5)
 			let device_address = event.target.value.getUint32(6, true);
 			let device_type = event.target.value.getUint8(10);
+			let divisor = event.target.value.getUint16(11, true);
 			
 			$("devtype").hidden=false;
 			addLog('Device type: ' + device_type);
@@ -393,9 +460,9 @@ function handlerCmdChanged(event) {
 				$("kaskad1mt").checked = true;
 			}
 			
-			$("kaskad11").disabled = true;
-			$("mercury206").disabled = true;
-			$("emeter_button").disabled = true;
+//			$("kaskad11").disabled = true;
+//			$("mercury206").disabled = true;
+//			$("emeter_button").disabled = true;
 			
 			emeterFirmware = true;			
 			addAlog('Electricity meter Firmware found in module');
@@ -424,7 +491,7 @@ function handlerCmdChanged(event) {
 
 			if(emeterEnabled)  {
 				getDevEMeter();
-				s = '<table> \
+				s = '<hr><table> \
 					<tr><th>Serial Number</th><th>Date of release</th> \
 					<th>Tariff 1</th><th>Tarrif 2</th><th>Tariff 3</th><th>Power</th><th>Voltage</th><th>Ampere</th></tr> \
 					<tr><td id="serial_number"></td><td id="date_release"></td> \
@@ -432,11 +499,32 @@ function handlerCmdChanged(event) {
 					</td><td id="power"></td><td id="voltage"></td><td id="ampere"></td></tr> \
 					</table>';
 				$("table").innerHTML = s;
+				
+				
+				
+				s = '<hr><div>Divisor or Multiplier for Home Assistant</div>';
+				s += 'Power<input type"number" id="divisor_power" value="1">';
+				s += 'Voltage<input type"number" id="divisor_volts" value="1">';
+				s += 'Current<input type"number" id="divisor_amps" value="1">';
+				s += 'Tariffs<input type"number" id="divisor_tariffs" value="1">';
+				s += '<button type="button" onclick="sendCmdDivisor(divisor_power.value, divisor_volts.value, \
+																	divisor_amps.value, divisor_tariffs.value);">';
+				s += 'Set Divisor / Multiplier</button>';
+				$("divisor").innerHTML = s;
+				
+				let div_power = get_divisor_from(divisor&0x07);
+				let div_volts = get_divisor_from((divisor>>3)&0x07);
+				let div_amps  = get_divisor_from((divisor>>6)&0x07);
+				let div_tariffs = get_divisor_from((divisor>>9)&0x07);
+				$("divisor_power").value = div_power;
+				$("divisor_volts").value = div_volts;
+				$("divisor_amps").value = div_amps;
+				$("divisor_tariffs").value = div_tariffs;
+				
 				s = '<div>Measurement period in minutes</div>';
 				s += '<input type="number" id="setmsperiod" min="1" max="255" value="' + measur_period + '">';
 				s += '<button type="button" onclick="sendCmdPeriod(setmsperiod.value);">';
 				s += 'Set Measurement Period</button>';
-//				s += '<button type="button" onclick="sendCustomSetting(Number(cmdClearCfg).toString(16));">';
 				s += '<button type="button" onclick="sendCmdClearCfg();">';
 				s += 'Clear Config</button><br>';
 				s += '<div>Device Address</div>';
@@ -488,13 +576,21 @@ function handlerCmdChanged(event) {
 				let device_address = event.target.value.getUint32(6, true);
 				$("setmsperiod").value = measur_period;
 				$("setaddr").value = device_address; 
+				let divisor = event.target.value.getUint16(11, true);
+				let div_power = get_divisor_from(divisor&0x07);
+				let div_volts = get_divisor_from((divisor>>3)&0x07);
+				let div_amps  = get_divisor_from((divisor>>6)&0x07);
+				let div_tariffs = get_divisor_from((divisor>>9)&0x07);
+				$("divisor_power").value = div_power;
+				$("divisor_volts").value = div_volts;
+				$("divisor_amps").value = div_amps;
+				$("divisor_tariffs").value = div_tariffs;
 			} else if (id == serialNumberId) {
 				let sn = new TextDecoder("utf-8").decode(event.target.value.buffer.slice(2));
 				$("serial_number").innerHTML = sn;
 			} else if (id == dateReleaseId) {
 				let dr = new TextDecoder("utf-8").decode(event.target.value.buffer.slice(2));
 				$("date_release").innerHTML = dr;
-				
 			}
 		}
 	}
