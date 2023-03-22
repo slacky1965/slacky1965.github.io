@@ -36,6 +36,7 @@
 	<a><input id="kaskad1mt" name="emeter" type="radio" value="1">KACKAD-1-MT</a>
 	<a><input id="kaskad11" name="emeter" type="radio" value="2">KACKAD-11</a>
 	<a><input id="mercury206" name="emeter" type="radio" value="3">MERCURY 206</a>
+	<a><input id="energomera_ce102m" name="emeter" type="radio" value="4">ENERGOMERA CE-102M</a>
 	<a><button id="emeter_button" type="button" onclick="set_device_type()">Set Device Type</button></a>
 </div>
 <div id="table"></div>
@@ -72,6 +73,11 @@ var fwname = '';
 var emeterId = 0xFEDA;
 var emeterFirmware = false;
 var emeterSoftwareVersion = 0;
+var device_type = 0;
+var device_kaskad_1_mt = 1;
+var device_kaskad_11 = 2;
+var device_mercury_206 = 3;
+var device_energomera_ce102m = 4;
 
 var logId = 0x78;
 var logPid = 0;
@@ -221,7 +227,13 @@ function set_device_type(){
 
 	for (var i=0; i<rad.length; i++) {
 		if (rad[i].checked) {
-			sendCommand(cmdSetDeviceType, rad[i].value);
+			device_type = rad[i].value;
+			sendCommand(cmdSetDeviceType, device_type);
+			if (device_type == device_energomera_ce102m) {
+				$("addr_button").disabled = true;
+			} else {
+				$("addr_button").disabled = false;
+			}
 		}
 	}
 	
@@ -445,7 +457,7 @@ function handlerCmdChanged(event) {
 			emeterSoftwareVersion = event.target.value.getUint8(4);
 			encryptEnabled = event.target.value.getUint8(5)
 			let device_address = event.target.value.getUint32(6, true);
-			let device_type = event.target.value.getUint8(10);
+			device_type = event.target.value.getUint8(10);
 			let divisor = event.target.value.getUint16(11, true);
 			
 			$("devtype").hidden=false;
@@ -456,13 +468,15 @@ function handlerCmdChanged(event) {
 				$("kaskad11").checked = true;
 			} else if (device_type == 3) {
 				$("mercury206").checked = true;
+			} else if (device_type == 4) {
+				$("energomera_ce102m").checked = true;
 			} else {
 				$("kaskad1mt").checked = true;
 			}
 			
 			$("kaskad11").disabled = true;
 			$("mercury206").disabled = true;
-			$("emeter_button").disabled = true;
+//			$("emeter_button").disabled = true;
 			
 			emeterFirmware = true;			
 			addAlog('Electricity meter Firmware found in module');
@@ -529,13 +543,21 @@ function handlerCmdChanged(event) {
 				s += 'Clear Config</button><br>';
 				s += '<div>Device Address</div>';
 				s += '<input type="number" id="setaddr" value="' + device_address + '">';
-				s += '<button type="button" onclick="sendCommand(cmdAddress, setaddr.value);">';
+				s += '<button id="addr_button" type="button" onclick="sendCommand(cmdAddress, setaddr.value);">';
 				s += 'Set Device Address</button>';
 				s += '<button type="button" onclick="sendCustomSetting(Number(cmdResetWhitelist).toString(16));">';
 				s += 'Reset Whitelist</button>';
 				s += '<button type="button" onclick="sendCustomSetting(Number(cmdResetMCU).toString(16));">';
 				s += 'Reset Module</button><br>';
 				$("settings").innerHTML = s;
+				
+				if (device_type == device_energomera_ce102m) {
+					$("addr_button").disabled = true;
+				} else {
+					$("addr_button").disabled = false;
+				}
+				
+
 			}
 			menuUpgrade();
 		}
