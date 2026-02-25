@@ -16,3 +16,14 @@
 
 # Кастомные прошивки для заводских Zigbee устройств
 
+| Проект | Репозиторий | Фото |
+|:-------|:-----------:|:----:|
+| Termostat | SRC | :camera: |
+| CO2 sensor | SRC | :camera: |
+| Plug with monitoring| SRC | :camera: |
+| Mini Relay with monitoring | SRC | :camera: |
+| Mini Switch module | SRC | :camera: |
+| Temperature and Huminity sensor | SRC | :camera: |
+| Water leak sensor | SRC | :camera: |
+| Door/Window sensor | SRC | :camera: |
+| Wireless switch LoraTap | SRC | :camera: |
