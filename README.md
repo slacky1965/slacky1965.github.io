@@ -1,7 +1,7 @@
 # slacky1965.github.io
 
 
-# <h1 style="text-align:center;">Zigbee DIY проекты</h1>
+# Zigbee DIY проекты
 
 | Проект | Репозиторий | Фото |
 |:-------|:-----------:|:----:|
