@@ -1,5 +1,6 @@
 # slacky1965.github.io
 
+---
 
 # Zigbee DIY проекты
 
@@ -10,4 +11,7 @@
 | [ElectricityMeter_ABC](https://slacky1965.github.io/electricity_meter_abc_zrd/) - уствойство для считывания параметров через оптопорт для трехфазных электросчетчиков | [SRC](https://github.com/slacky1965/electricity_meter_abc_zrd) | [:camera:](https://github.com/slacky1965/electricity_meter_abc_zrd/blob/main/doc/images/device_3d_box.png) |
 | [Smoke Sensor](https://slacky1965.github.io/smoke_sensor_zed/) - дополнительная плата Zigbee для заводского извещателя Рубеж ИП 212-50М2 | [SRC](https://github.com/slacky1965/smoke_sensor_zed) | [:camera:](https://raw.githubusercontent.com/slacky1965/smoke_sensor_zed/refs/heads/main/doc/images/device3.jpg)|
 
+---
+
+# Кастомные прошивки для заводских Zigbee устройств
 
