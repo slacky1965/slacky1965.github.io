@@ -1,17 +1,13 @@
 # slacky1965.github.io
 
-[Watermeter Bluetooth LE Telink TLSR8253 (Ai-Thinker TB-04)](https://slacky1965.github.io/watermeter_ble)
 
-[Electricity Meter Bluetooth LE Telink TLSR8253 (Ai-Thinker TB-04)](https://slacky1965.github.io/electricity_meter_ble)
+# <h1 style="text-align:center;">Zigbee DIY проекты</h1>
 
-[Watermeter Zigbee Telink TLSR8258 (E-BYTE E180-Z5812SP)](https://slacky1965.github.io/watermeter_zed)
-
-[Electricity Meter Zigbee Telink TLSR8258 (E-BYTE E180-Z5812SP)](https://slacky1965.github.io/electricity_meter_zrd/)
-
-[Smoke Sensor Zigbee Telink TLSR8258 (E-BYTE E180-Z5812SP)](https://slacky1965.github.io/smoke_sensor_zed/)
-
-[ElectricityMeter-ABC-DIY via optical port on Zigbee TLSR8258F1KET32 ZTU Module](https://slacky1965.github.io/electricity_meter_abc_zrd/)
-
-
+| Проект | Репозиторий | Фото |
+|:------:|:-----------:|:----:|
+| [WaterMeter](https://slacky1965.github.io/watermeter_zed) - двухканальный счетчик импульсов для для подсчета расхода воды | [SRC](https://github.com/slacky1965/watermeter_zed) | [:camera:](https://raw.githubusercontent.com/slacky1965/watermeter_zed/refs/heads/main/doc/images/Watermeter_TLSR8258.png) |
+| [ElectricityMeter](https://slacky1965.github.io/electricity_meter_zrd/) - уствойство для считывания параметров через оптопорт для однофазных электросчетчиков | [SRC](https://github.com/slacky1965/electricity_meter_zrd) | [:camera:](https://raw.githubusercontent.com/slacky1965/electricity_meter_zrd/refs/heads/main/doc/images/device_3d_box.png) |
+| [ElectricityMeter_ABC](https://slacky1965.github.io/electricity_meter_abc_zrd/) - уствойство для считывания параметров через оптопорт для трехфазных электросчетчиков | [SRC](https://github.com/slacky1965/electricity_meter_abc_zrd) | [:camera:](https://github.com/slacky1965/electricity_meter_abc_zrd/blob/main/doc/images/device_3d_box.png) |
+| [Smoke Sensor](https://slacky1965.github.io/smoke_sensor_zed/) - дополнительная плата Zigbee для заводского извещателя Рубеж ИП 212-50М2 | [SRC](https://github.com/slacky1965/smoke_sensor_zed) | [:camera:](https://raw.githubusercontent.com/slacky1965/smoke_sensor_zed/refs/heads/main/doc/images/device3.jpg)|
 
 
