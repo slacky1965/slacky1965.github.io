@@ -18,12 +18,12 @@
 
 | Проект | Репозиторий | Фото |
 |:-------|:-----------:|:----:|
-| Termostat | SRC | :camera: |
+| [Termostat](https://slacky1965.github.io/tuya_thermostat_zrd/) | SRC | :camera: |
 | CO2 sensor | SRC | :camera: |
 | Plug with monitoring| SRC | :camera: |
 | Mini Relay with monitoring | SRC | :camera: |
 | Mini Switch module | SRC | :camera: |
 | Temperature and Huminity sensor | SRC | :camera: |
 | Water leak sensor | SRC | :camera: |
-| Door/Window sensor | SRC | :camera: |
+| [Door/Window sensor](https://slacky1965.github.io/tuya_door_sensor_ts0203_zed/) | SRC | :camera: |
 | Wireless switch LoraTap | SRC | :camera: |
